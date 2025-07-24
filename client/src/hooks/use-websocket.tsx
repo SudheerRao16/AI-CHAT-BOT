@@ -12,12 +12,12 @@ export function useWebSocket() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
+  const connectSocket = () => {
+    if (!user || ws.current?.readyState === WebSocket.OPEN) return;
 
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}/ws`;
-    
+
     ws.current = new WebSocket(wsUrl);
 
     ws.current.onopen = () => {
@@ -38,11 +38,14 @@ export function useWebSocket() {
     ws.current.onerror = (error) => {
       console.error("WebSocket error:", error);
     };
+  };
+
+  // Optional: auto-connect on login
+  useEffect(() => {
+    connectSocket();
 
     return () => {
-      if (ws.current) {
-        ws.current.close();
-      }
+      ws.current?.close();
     };
   }, [user]);
 
@@ -56,5 +59,6 @@ export function useWebSocket() {
     isConnected,
     lastMessage,
     sendMessage,
+    connectSocket, // 👈 expose this!
   };
 }
