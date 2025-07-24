@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useWebSocket } from "@/hooks/use-websocket";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { DocumentUpload } from "@/components/ui/document-upload";
@@ -14,6 +15,8 @@ export function MessageInput({ onSendMessage, disabled }: MessageInputProps) {
   const [message, setMessage] = useState("");
   const [showFileUpload, setShowFileUpload] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { isConnected, connectSocket } = useWebSocket();
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +65,9 @@ export function MessageInput({ onSendMessage, disabled }: MessageInputProps) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={() => {
+                connectSocket();
+              }}
               className="min-h-[52px] max-h-[120px] resize-none pr-12"
               disabled={disabled}
             />
